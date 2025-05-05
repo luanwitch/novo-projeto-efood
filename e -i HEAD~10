@@ -1,0 +1,57 @@
+[33mc2107e7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Atualiza estilos e estrutura de navegação
+[33m58ed572[m aplicado scrolltop no modal
+[33m861718c[m apliqcação de orverlay e ajuste e contralização e altura do modal
+[33mae98fd9[m ajustes na posição do modal conforme layout figma
+[33m4696e4e[m feitas ajustes na Header,  HeaderSaiba e nos Cards afim de atender o layout do figma e instruções do tutor para correção do exercício
+[33me4eaad7[m foram aplicados melhorias responsivas no formulário de pagto e melhorias gerais no código
+[33m45b9c05[m foram feitas melhorias no código e implementação do arquivo types.d.ts
+[33m4e5fb89[m faltou aplicar mascara no campo cep, implementado o placeholder nos campos: cep, numero cartão, cvv, mês e ano
+[33mc0bc05f[m aplicado mascaras aos campos de cartão, numero,  vecto mês e ano e CVV e aprimoramento das validações
+[33mba5bf78[m eliminado os erros de eslint any do código
+[33m584a9da[m renomeado rota HeaderKnow
+[33m78d47f3[m Feito melhoria internas no código
+[33m7cb0e50[m foram feitos melhorias no código, implementado efeitos de loading através do react-spinners
+[33mb4dac67[m feitos melhorias na parte de checkout
+[33mdb4a622[m aplicado valor total FinalDelivery, efeito pistar amarelo carrinho vazio e menssagem funal do pedido
+[33mee020ef[m foram feitas melhorias no código e ao finalizar o pagamento carrinho é zeradogit add .
+[33m1dd7383[m foram feitas as validações de FinalDelivery
+[33m3b2c5dc[m carrinho vazio retorna ao Home, formulário Delivery aplica validações e não segue adiante
+[33m7423b17[m feito a integração da API chekout em Delivery, FinalDelivery e ProjectFinal
+[33m23dfabf[m foram aplicados validações nos formulários com o uso do Formik e Yup
+[33mc4a4f5b[m foram feitos ajustes responsivos nos formulários de delivery e pagamento
+[33m3b349d7[m sidebar conclusão do pedido finalizada, ajustados os reducers no cart, falta as mascaras e aplicar validações
+[33m60c65ec[m feito a sidebar de delivery e pagamento
+[33m45952d2[m aplicados melhorias no código e responvidade do projeto
+[33m9c1339c[m feito o função de remover itens do carrinho
+[33me60ac57[m aplicado responsividade no carrinho de compras
+[33m863eb4b[m implementados funções os ao add e continuar a compra no carrinho, sidebar com todos os items renderizados, total e quantidades de items
+[33m06797bb[m feito carrinho, sidebar, botões, a parte visual e seus estilos
+[33m0f6dcf9[m Configurações iniciais do Redux: reducers, slices e requisições implementadas.
+[33m7f98237[m foram ajustados para o modal abrir assim que chegar na página PerfilDetails, scrooltop para centralizar o modal aberto, troca do nome do botão para Mais detalhes
+[33mb0c55e6[m ajustado a lógica para renderizar os restaurantes e seus respectivos prato
+[33mfd63bde[m criado modal, falta ajustar o codigo a logica correta
+[33maf87130[m foram integrados os dados de tipo, titulo e capa na headersaiba
+[33ma25e295[m intregrada a API ao projeto nos seus tipos de cozinha e seus pratos
+[33mc943fdc[m intregado API com a Home e Perfil, ajustados os estilos
+[33m2380109[m foram integrados a API a pagina Home, falta fazer a estilização
+[33m67d01a0[m ajuste centralização do modal
+[33mba3b19c[m ajustado imagem fechar modal
+[33md6ee99c[m ajustes no resposividade do modal
+[33ma91188f[m foram implementados resposividade no modal
+[33mbf75bbb[m foram criados a lista de produtos, dados ações as botões adicionar ao carrinho e mais detalhes, implementado modal
+[33m86a7eaa[m foi adicionado padding de 10px a imagem no card para igualar ao modelo do figma
+[33mb130ce3[m foram aplicados rotas com BorwserRouter, Routes e Route
+[33m0b12d36[m implementado link para retornar a Home
+[33mdd1f473[m finalizada a página Perfil, Headersaiba e os Cards, foram aplicadas medias@queys para todos os dispositivos mobile
+[33m6535907[m estabelicimento de 3 colunas
+[33mb954996[m dado início a página perfil, em processo de conclusão
+[33mf0691da[m implementados Homepage, iniciado pagina produtos saiba mais
+[33ma5602a1[m implementado botão saiba mais e alguns ajustes
+[33mddcc72e[m ajuste responsividade
+[33m8f499bc[m ajuste nas media@querys
+[33md2ff178[m alterado nome de imagem la vida doce para massas
+[33mf93d48c[m aplicado media@querys
+[33m7ca1a52[m primeira fase do exercício concluido
+[33mfd69b49[m criados Produto, lista de produtos, Tags e footer
+[33md1a677e[m componente Header finalizado
+[33mff8b6fb[m first commit
