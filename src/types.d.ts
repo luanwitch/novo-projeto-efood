@@ -1,5 +1,13 @@
-// Produto do cardápio
-export type Produto = {
+export type CardapioItem = {
+  id: number
+  nome: string
+  descricao: string
+  foto: string
+  preco: number
+  porcao: string
+}
+
+export type Restaurante = {
   id: number
   titulo: string
   destacado: boolean
@@ -7,62 +15,47 @@ export type Produto = {
   avaliacao: number
   descricao: string
   capa: string
-  cardapio: {
-    id: number
-    nome: string
-    descricao: string
-    foto: string
-    preco: number
-    porcao: string
-  }[]
+  cardapio: CardapioItem[]
 }
 
-// Tipo usado para enviar produtos à API
-export type ProductAPI = {
-  id: number
-  price: number
-}
-
-// Dados de pagamento
-export type PaymentData = {
-  cardNumber: string
-  expiryDate: string // MM/YY
-  cvv: string
-  nameOnCard: string
-}
-
-// Dados de entrega
 export type DeliveryData = {
   fullName: string
   end: string
   city: string
   cep: string
   numero: string
-  complement: string
-} | null
+  complement?: string
+}
 
-// Estado do carrinho
+export type PaymentData = {
+  card: {
+    name: string
+    number: string
+    code: number
+    expires: {
+      month: number
+      year: number
+    }
+  }
+}
+
 export type CartState = {
-  items: Produto['cardapio'][0][] // Itens do carrinho (pratos)
+  items: CardapioItem[]
   isOpen: boolean
   isOpenDelivery: boolean
   isOpenDeliveryEnd: boolean
   isFinalProjectOpen: boolean
-  deliveryData: DeliveryData
-  products: ProductAPI[]
-  paymentData: PaymentData
+  deliveryData: DeliveryData | null
+  paymentData: PaymentData | null
 }
 
-// Tipo genérico de produto para API
-export type Product = {
+export type ProductAPI = {
   id: number
   price: number
 }
 
-// Payload da requisição de compra
 export type PurchasePayload = {
-  orderId?: string
-  products: Product[]
+  products: ProductAPI[]
   delivery: {
     receiver: string
     address: {
@@ -70,35 +63,28 @@ export type PurchasePayload = {
       city: string
       zipCode: string
       number: number
-      complement: string
+      complement?: string
     }
   }
-  payment: {
-    card: {
-      name: string
-      number: string
-      code: number
-      expires: {
-        month: number
-        year: number
-      }
-    }
-  }
+  payment: PaymentData
 }
 
-// Resposta da API
 export type PurchaseResponse = {
-  delivery: null
   orderId: string
 }
 
-// Props para InputGroup
+export type PerfilListProps = {
+  perfils: Restaurante[]
+  restauranteId?: number
+  onProductClick: (restaurante: Restaurante, item: CardapioItem) => void
+  botaoLabel?: string
+}
+
 export type InputGroupProps = {
   maxWidth?: string
 }
 
-// Props de botão ou link
-export type Props = {
+export type ButtonProps = {
   type: 'button' | 'link'
   title: string
   to?: string
@@ -106,20 +92,9 @@ export type Props = {
   children: React.ReactNode
 }
 
-// Formulário de pagamento
-export interface FormValues {
-  cardFullName: string
-  cardNumber: string
-  segNumber: string
-  vectoMonth: string
-  vectoYear: string
-  [key: string]: string // permite acesso dinâmico
+// Props para o componente Tag
+export type TagProps = {
+  children: string
 }
 
-// Props de perfil/restaurante
-export type PerfilProps = {
-  perfils: Produto[]
-  restauranteId?: number
-  onProductClick: (restaurante: Produto, item: Produto['cardapio'][0]) => void
-  botaoLabel?: string // opcional
-}
+export type Produto = Restaurante

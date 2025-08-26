@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useDispatch, useSelector } from 'react-redux'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
@@ -17,6 +18,8 @@ import {
   close
 } from '../../store/reducers/cart'
 
+import { DeliveryData } from '../../types'
+
 const Delivery = () => {
   const { isOpenDelivery, items } = useSelector(
     (state: RootReducer) => state.cart
@@ -29,11 +32,7 @@ const Delivery = () => {
     dispatch(closeDelivery())
   }
 
-  const openCartDeliveryEnd = () => {
-    dispatch(openDeliveryEnd())
-  }
-
-  const form = useFormik({
+  const form = useFormik<DeliveryData>({
     initialValues: {
       fullName: '',
       end: '',
@@ -50,44 +49,28 @@ const Delivery = () => {
         .min(9, 'Mínimo 9 caracteres')
         .max(9, 'Máximo 9 caracteres')
         .required('Preenchimento obrigatório'),
-      numero: Yup.string().required('Preenchimento obrigatório')
+      numero: Yup.string().required('Preenchimento obrigatório'),
+      complement: Yup.string()
     }),
-
     onSubmit: (values) => {
       setIsLoading(true)
-      // Apenas salva no Redux
       dispatch(setDeliveryData(values))
-
-      // Timer de 1 segundo antes de prosseguir
       setTimeout(() => {
         setIsLoading(false)
-        openCartDeliveryEnd()
+        dispatch(openDeliveryEnd())
+        dispatch(closeDelivery()) // ✅ CORREÇÃO: Fecha a tela atual para abrir a próxima
       }, 1000)
     }
   })
 
-  const checkInputHasError = (fieldName: string) => {
-    const isTouched = fieldName in form.touched
-    const isInvalid = fieldName in form.errors
-    const hasError =
-      (isTouched && isInvalid) || (form.submitCount > 0 && isInvalid)
-
-    return hasError
+  const checkInputHasError = (fieldName: keyof DeliveryData) => {
+    const isTouched = form.touched[fieldName]
+    const isInvalid = form.errors[fieldName]
+    return (isTouched && !!isInvalid) || (form.submitCount > 0 && !!isInvalid)
   }
 
   const handleContinueClick = () => {
-    const touchedFields = Object.keys(form.values).reduce((acc, field) => {
-      acc[field] = true
-      return acc
-    }, {} as Record<string, boolean>)
-
-    form.setTouched(touchedFields)
-
-    form.validateForm().then((errors) => {
-      if (Object.keys(errors).length === 0) {
-        form.handleSubmit()
-      }
-    })
+    form.submitForm()
   }
 
   useEffect(() => {
@@ -96,18 +79,17 @@ const Delivery = () => {
       const timer = setTimeout(() => {
         setIsLoading(false)
       }, 1000)
-
       return () => clearTimeout(timer)
     }
   }, [isOpenDelivery])
 
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && isOpenDelivery) {
       dispatch(close())
       dispatch(closeDelivery())
       navigate('/')
     }
-  }, [items, dispatch, navigate])
+  }, [items, dispatch, navigate, isOpenDelivery])
 
   return (
     <S.DeliContainer className={isOpenDelivery ? 'is-open' : ''}>
@@ -175,15 +157,12 @@ const Delivery = () => {
                       mask="99999-999"
                       maskChar={null}
                       value={form.values.cep}
-                      onChange={(e) =>
-                        form.setFieldValue('cep', e.target.value)
-                      }
+                      onChange={form.handleChange}
                       onBlur={form.handleBlur}
                       className={checkInputHasError('cep') ? 'error' : ''}
                       placeholder="00000-000"
                     />
                   </S.InputGroup>
-
                   <S.InputGroup>
                     <label htmlFor="numero">Número</label>
                     <input
@@ -203,7 +182,7 @@ const Delivery = () => {
                     id="complement"
                     type="text"
                     name="complement"
-                    value={form.values.complement}
+                    value={form.values.complement || ''}
                     onChange={form.handleChange}
                     onBlur={form.handleBlur}
                   />
@@ -225,7 +204,7 @@ const Delivery = () => {
                     title="Clique aqui para voltar ao carrinho"
                     type="button"
                   >
-                    Voltar ao carrinho
+                    Voltar para o carrinho
                   </S.ButtonCart>
                 </div>
               </S.ButtonContainer>

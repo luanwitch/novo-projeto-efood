@@ -1,16 +1,16 @@
 import * as S from '../ProductList/styles'
-
 import Perfil from '../ProductPerfil'
+
+import { PerfilListProps, Restaurante, CardapioItem } from '../../types'
 
 const PerfilList = ({
   perfils,
   restauranteId,
   onProductClick,
   botaoLabel
-}: PerfilProps) => {
-  // Encontra o restaurante específico
+}: PerfilListProps) => {
   const restaurante = perfils.find(
-    (perfil) => perfil.id === Number(restauranteId)
+    (perfil: Restaurante) => perfil.id === Number(restauranteId)
   )
 
   if (restauranteId && !restaurante) {
@@ -25,7 +25,7 @@ const PerfilList = ({
     return (
       <S.SectionContainer>
         <S.List>
-          {restaurante.cardapio.map((item) => (
+          {restaurante.cardapio.map((item: CardapioItem) => (
             <Perfil
               key={`${restaurante.id}-${item.id}`}
               restauranteId={restaurante.id}
@@ -34,7 +34,7 @@ const PerfilList = ({
               image={item.foto}
               description={item.descricao}
               onClick={() => onProductClick(restaurante, item)}
-              botaoLabel={botaoLabel} // 🔹 Passamos a label personalizada
+              botaoLabel={botaoLabel}
             />
           ))}
         </S.List>
@@ -42,11 +42,10 @@ const PerfilList = ({
     )
   }
 
-  // Lista de restaurantes
   return (
     <S.SectionContainer>
       <S.List>
-        {perfils.map((perfil) => (
+        {perfils.map((perfil: Restaurante) => (
           <Perfil
             key={perfil.id}
             restauranteId={perfil.id}

@@ -14,6 +14,7 @@ import {
   close,
   setPaymentData
 } from '../../store/reducers/cart'
+import { CardapioItem } from '../../types'
 
 const FinalDelivery = () => {
   const { isOpenDeliveryEnd, items } = useSelector(
@@ -39,24 +40,24 @@ const FinalDelivery = () => {
         .test(
           'cardNumberComplete',
           'Número de cartão incompleto',
-          (value) => value?.replace(/[^0-9]/g, '').length === 16
+          (value) => !!value && value.replace(/[^0-9]/g, '').length === 16
         )
         .required('Preenchimento obrigatório'),
       segNumber: Yup.string()
         .test(
           'cvvComplete',
           'CVV incompleto',
-          (value) => value?.replace(/[^0-9]/g, '').length === 3
+          (value) => !!value && value.replace(/[^0-9]/g, '').length === 3
         )
         .required('Preenchimento obrigatório'),
       vectoMonth: Yup.string()
         .test(
           'monthComplete',
           'Mês incompleto',
-          (value) => value?.replace(/[^0-9]/g, '').length === 2
+          (value) => !!value && value.replace(/[^0-9]/g, '').length === 2
         )
         .test('validMonth', 'Mês inválido', (value) => {
-          const month = parseInt(value || '0')
+          const month = parseInt(value || '0', 10)
           return month >= 1 && month <= 12
         })
         .required('Preenchimento obrigatório'),
@@ -64,17 +65,16 @@ const FinalDelivery = () => {
         .test(
           'yearComplete',
           'Ano incompleto',
-          (value) => value?.replace(/[^0-9]/g, '').length === 4
+          (value) => !!value && value.replace(/[^0-9]/g, '').length === 4
         )
         .test('validYear', 'Ano inválido', (value) => {
-          const year = parseInt(value || '0')
+          const year = parseInt(value || '0', 10)
           const currentYear = new Date().getFullYear()
           return year >= currentYear && year <= currentYear + 20
         })
         .required('Preenchimento obrigatório')
     }),
     onSubmit: (values) => {
-      // Salva os dados do pagamento no Redux
       dispatch(
         setPaymentData({
           card: {
@@ -89,7 +89,6 @@ const FinalDelivery = () => {
         })
       )
 
-      // Fecha as etapas anteriores e abre a final
       dispatch(openFinalProject())
       dispatch(closeDeliveryEnd())
       dispatch(closeDelivery())
@@ -97,28 +96,20 @@ const FinalDelivery = () => {
     }
   })
 
-  const getErrorMessage = (fieldName: string): boolean => {
-    const isTouched = fieldName in form.touched
-    const isInvalid = fieldName in form.errors
-    const hasError =
-      (isTouched && isInvalid) || (form.submitCount > 0 && isInvalid)
-
-    return hasError
+  const getErrorMessage = (fieldName: keyof typeof form.values): boolean => {
+    const isTouched = form.touched[fieldName]
+    const isInvalid = form.errors[fieldName]
+    return (isTouched && !!isInvalid) || (form.submitCount > 0 && !!isInvalid)
   }
 
   const handleFinishPayment = () => {
-    form.setTouched(
-      Object.keys(form.values).reduce((acc, field) => {
-        acc[field] = true
-        return acc
-      }, {} as Record<string, boolean>)
-    )
+    form.submitForm()
+  }
 
-    form.validateForm().then((errors) => {
-      if (Object.keys(errors).length === 0) {
-        form.handleSubmit()
-      }
-    })
+  const getTotalPrice = () => {
+    return items.reduce((total: number, item: CardapioItem) => {
+      return total + item.preco
+    }, 0)
   }
 
   return (
@@ -127,9 +118,9 @@ const FinalDelivery = () => {
       <S.Sidebar>
         <PricesT>
           Pagamento - Valor a pagar R${' '}
-          {items
-            .reduce((total: any, item: { preco: any }) => total + item.preco, 0)
-            .toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          {getTotalPrice().toLocaleString('pt-BR', {
+            minimumFractionDigits: 2
+          })}
         </PricesT>
         <form onSubmit={form.handleSubmit}>
           <S.Row>
@@ -145,7 +136,6 @@ const FinalDelivery = () => {
                 className={getErrorMessage('cardFullName') ? 'error' : ''}
               />
             </S.InputGroup>
-
             <S.CartContainer>
               <S.InputGroup maxWidth="228px">
                 <label htmlFor="cardNumber">Número do cartão</label>
@@ -162,7 +152,6 @@ const FinalDelivery = () => {
                   placeholder="0000 0000 0000 0000"
                 />
               </S.InputGroup>
-
               <S.InputGroup maxWidth="88px">
                 <label htmlFor="segNumber">CVV</label>
                 <InputMask
@@ -179,7 +168,6 @@ const FinalDelivery = () => {
                 />
               </S.InputGroup>
             </S.CartContainer>
-
             <S.CartContainer>
               <S.InputGroup maxWidth="155px">
                 <label htmlFor="vectoMonth">Mês de vencimento</label>
@@ -196,7 +184,6 @@ const FinalDelivery = () => {
                   placeholder="MM"
                 />
               </S.InputGroup>
-
               <S.InputGroup maxWidth="155px">
                 <label htmlFor="vectoYear">Ano de vencimento</label>
                 <InputMask
@@ -214,7 +201,6 @@ const FinalDelivery = () => {
               </S.InputGroup>
             </S.CartContainer>
           </S.Row>
-
           <S.ButtonContainer>
             <div>
               <S.ButtonCart

@@ -7,6 +7,7 @@ import * as S from './styles'
 import { colors } from '../../styles'
 import { RootReducer } from '../../store'
 import { close, remove, openDelivery } from '../../store/reducers/cart'
+import { CardapioItem } from '../../types'
 
 const Cart = () => {
   const { isOpen, items } = useSelector((state: RootReducer) => state.cart)
@@ -19,26 +20,14 @@ const Cart = () => {
   }
 
   const removeItem = (id: number) => {
-    setIsLoading(true)
     dispatch(remove(id))
-
-    // Define o tempo de 3 segundos para o loader
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 3000)
   }
 
   const cartDelivery = () => {
-    setIsLoading(true)
     dispatch(openDelivery())
-
-    // Define o tempo de 3 segundos para o loader
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 3000)
+    dispatch(close())
   }
 
-  // Efeito para mostrar o loader quando o carrinho é aberto
   useEffect(() => {
     if (isOpen) {
       setIsLoading(true)
@@ -49,6 +38,12 @@ const Cart = () => {
       return () => clearTimeout(timer)
     }
   }, [isOpen])
+
+  const getTotalPrice = () => {
+    return items.reduce((total: number, item: CardapioItem) => {
+      return total + item.preco
+    }, 0)
+  }
 
   return (
     <S.CartContainer className={isOpen ? 'is-open' : ''}>
@@ -68,7 +63,7 @@ const Cart = () => {
         ) : items.length > 0 ? (
           <>
             <ul>
-              {items.map((item) => (
+              {items.map((item: CardapioItem) => (
                 <S.CartItem key={item.id}>
                   <img src={item.foto} alt={item.nome} />
                   <div>
@@ -94,21 +89,12 @@ const Cart = () => {
               <S.PricesT>Valor total</S.PricesT>
               <S.PricesT>
                 R${' '}
-                {items
-                  .reduce((total, item) => total + item.preco, 0)
-                  .toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                {getTotalPrice().toLocaleString('pt-BR', {
+                  minimumFractionDigits: 2
+                })}
               </S.PricesT>
             </S.AlinPrices>
             <S.ButtonContainer>
-              <div>
-                <S.ButtonCart
-                  onClick={closeCart}
-                  title="Clique aqui para continuar comprando"
-                  type="button"
-                >
-                  Continuar comprando
-                </S.ButtonCart>
-              </div>
               <div>
                 <S.ButtonCart
                   onClick={cartDelivery}

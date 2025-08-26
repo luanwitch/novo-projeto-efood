@@ -1,29 +1,32 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import {
+  Restaurante,
+  CardapioItem,
+  PurchasePayload,
+  PurchaseResponse
+} from '../../src/types'
 
 const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: 'https://ebac-fake-api.vercel.app/api/efood'
   }),
   endpoints: (builder) => ({
-    // Endpoint para buscar todos os restaurantes
-    getRestaurantsProduct: builder.query<Produto[], void>({
+    getRestaurantsProduct: builder.query<Restaurante[], void>({
       query: () => 'restaurantes'
     }),
 
-    // Endpoint para buscar um restaurante específico pelo ID
-    getRestaurantById: builder.query<Produto, number>({
+    getRestaurantById: builder.query<Restaurante, number>({
       query: (id) => `restaurantes/${id}`
     }),
 
-    // Endpoint para buscar um prato específico pelo ID do restaurante e do prato
     getDishById: builder.query<
-      Produto['cardapio'][0],
+      CardapioItem,
       { restaurantId: number; dishId: number }
     >({
       query: ({ restaurantId, dishId }) =>
         `restaurantes/${restaurantId}/cardapio/${dishId}`
     }),
-    purchase: builder.mutation<Purchaseresponse, PurchasePayload>({
+    purchase: builder.mutation<PurchaseResponse, PurchasePayload>({
       query: (body) => ({
         url: 'checkout',
         method: 'POST',
@@ -33,7 +36,6 @@ const api = createApi({
   })
 })
 
-// Exporte os hooks gerados automaticamente
 export const {
   useGetRestaurantsProductQuery,
   useGetRestaurantByIdQuery,

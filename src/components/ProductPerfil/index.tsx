@@ -1,10 +1,8 @@
 import { useNavigate } from 'react-router-dom'
-
 import * as S from './styles'
-
 import ButtonPerfil from '../ButtonPerfil'
 
-type Props = {
+type ProductPerfilProps = {
   restauranteId: number
   id: number
   title: string
@@ -22,11 +20,10 @@ const ProductPerfil = ({
   image,
   onClick,
   botaoLabel
-}: Props) => {
+}: ProductPerfilProps) => {
   const navigate = useNavigate()
 
   const handleAddToCart = () => {
-    // Navega para a página de detalhes do restaurante com o ID do prato como parâmetro
     navigate(`/PerfilDetails/${restauranteId}?prato=${id}`)
     if (onClick) {
       onClick()

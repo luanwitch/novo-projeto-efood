@@ -9,19 +9,23 @@ import fechar_modal from '../../assets/image/fechar-modal.png'
 import { useGetRestaurantByIdQuery } from '../../services/api'
 import { add, open } from '../../store/reducers/cart'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { Restaurante, CardapioItem } from '../../types'
+
 const MemoizedPerfilList = memo(PerfilList)
 
 const PerfilDetails = () => {
   const { id } = useParams()
   const [searchParams] = useSearchParams()
   const pratoId = searchParams.get('prato')
+
   const restauranteId = id ? Number(id) : 0
+
   const { data: restaurante } = useGetRestaurantByIdQuery(restauranteId, {
     skip: !restauranteId
   })
-  const [selectedDish, setSelectedDish] = useState<
-    Produto['cardapio'][0] | null
-  >(null)
+
+  const [selectedDish, setSelectedDish] = useState<CardapioItem | null>(null)
   const [modalIsOpen, setModalIsOpen] = useState(false)
   const dispatch = useDispatch()
   const cardsRef = useRef<HTMLDivElement>(null)
@@ -41,12 +45,11 @@ const PerfilDetails = () => {
 
   useEffect(() => {
     if (modalIsOpen) {
-      // Define o modal no topo da janela visível
       setModalTop(100)
     }
   }, [modalIsOpen])
 
-  const handleProductClick = (item: Produto['cardapio'][0]) => {
+  const handleProductClick = (item: CardapioItem) => {
     setSelectedDish(item)
     setModalIsOpen(true)
   }

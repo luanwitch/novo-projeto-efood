@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 
 import { breakpoints, colors } from '../../styles'
+import { InputGroupProps } from '../../types'
 
 export const Overlay = styled.div`
   position: fixed;

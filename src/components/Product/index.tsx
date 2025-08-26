@@ -1,5 +1,7 @@
 import * as S from './styles'
 
+import { Produto } from '../../types'
+
 import Tag from '../Tag'
 import Button from '../Button'
 
@@ -19,7 +21,6 @@ const Product = ({
       <img src={capa} alt={titulo} />
     </S.ImageContainer>
     <S.Category>
-      {/* Renderiza a tag apenas se destacado for true */}
       {destacado && <Tag>Destaque da semana</Tag>}
       <Tag>{tipo}</Tag>
     </S.Category>

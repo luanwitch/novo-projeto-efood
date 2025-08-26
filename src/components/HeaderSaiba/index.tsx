@@ -6,13 +6,7 @@ import { RootReducer } from '../../store'
 import { useGetRestaurantsProductQuery } from '../../services/api'
 import logo from '../../assets/image/logo.png'
 import { Container } from '../../styles'
-
-type Produto = {
-  id: number
-  capa: string
-  tipo: string
-  titulo: string
-}
+import { Restaurante } from '../../types'
 
 const HeaderKnow = () => {
   const { id } = useParams()
@@ -26,7 +20,7 @@ const HeaderKnow = () => {
   }
 
   const produto = data
-    ? data.find((item: Produto) => item.id === Number(id))
+    ? data.find((item: Restaurante) => item.id === Number(id))
     : null
 
   return (

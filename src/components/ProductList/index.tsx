@@ -1,11 +1,13 @@
 import Product from '../Product'
 import * as S from './styles'
 
-export type Props = {
+import { Produto } from '../../types'
+
+export type ProductsListProps = {
   produtos: Produto[]
 }
 
-const ProductsList = ({ produtos }: Props) => (
+const ProductsList = ({ produtos }: ProductsListProps) => (
   <S.SectionContainer>
     <S.List>
       {produtos.map((produto) => (

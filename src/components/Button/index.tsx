@@ -1,8 +1,9 @@
 import React from 'react'
-
 import * as S from './styles'
 
-const Button = ({ type, title, to, onClick, children }: Props) => {
+import { ButtonProps } from '../../types'
+
+const Button = ({ type, title, to, onClick, children }: ButtonProps) => {
   if (type === 'button') {
     return (
       <S.ButtonContainer type="button" title={title} onClick={onClick}>
