@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import { useEffect } from 'react'
 import InputMask from 'react-input-mask'
 
 import * as S from './styles'
@@ -13,9 +12,8 @@ import {
   openFinalProject,
   closeDelivery,
   close,
-  clearItems
+  setPaymentData
 } from '../../store/reducers/cart'
-import { usePurchaseMutation } from '../../services/api'
 
 const FinalDelivery = () => {
   const { isOpenDeliveryEnd, items } = useSelector(
@@ -23,32 +21,11 @@ const FinalDelivery = () => {
   )
   const dispatch = useDispatch()
 
-  const [purchase, { data }] = usePurchaseMutation()
-
-  // Monitorar a resposta da API de compra
-  useEffect(() => {
-    if (data) {
-      console.log('Compra realizada com sucesso:', data)
-      // Limpar os itens do carrinho após compra bem-sucedida
-      dispatch(clearItems())
-    }
-  }, [data, dispatch])
-
-  // Monitorar quando o carrinho fica vazio para abrir o ProjectFinal
-  useEffect(() => {
-    if (items.length === 0) {
-      dispatch(close()) // Fecha o Cart
-      dispatch(closeDelivery()) // Fecha o Delivery
-      dispatch(closeDeliveryEnd()) // Fecha o FinalDelivery
-      dispatch(openFinalProject()) // Abre o ProjectFinal
-    }
-  }, [items, dispatch])
-
   const closeCartDeliveryEnd = () => {
-    dispatch(closeDeliveryEnd()) // Fecha o FinalDelivery
+    dispatch(closeDeliveryEnd())
   }
 
-  const form = useFormik<FormValues>({
+  const form = useFormik({
     initialValues: {
       cardFullName: '',
       cardNumber: '',
@@ -57,21 +34,21 @@ const FinalDelivery = () => {
       vectoYear: ''
     },
     validationSchema: Yup.object({
-      cardFullName: Yup.string().required('preenchimento obrigatório'),
+      cardFullName: Yup.string().required('Preenchimento obrigatório'),
       cardNumber: Yup.string()
         .test(
           'cardNumberComplete',
           'Número de cartão incompleto',
           (value) => value?.replace(/[^0-9]/g, '').length === 16
         )
-        .required('preenchimento obrigatório'),
+        .required('Preenchimento obrigatório'),
       segNumber: Yup.string()
         .test(
           'cvvComplete',
           'CVV incompleto',
           (value) => value?.replace(/[^0-9]/g, '').length === 3
         )
-        .required('preenchimento obrigatório'),
+        .required('Preenchimento obrigatório'),
       vectoMonth: Yup.string()
         .test(
           'monthComplete',
@@ -82,7 +59,7 @@ const FinalDelivery = () => {
           const month = parseInt(value || '0')
           return month >= 1 && month <= 12
         })
-        .required('preenchimento obrigatório'),
+        .required('Preenchimento obrigatório'),
       vectoYear: Yup.string()
         .test(
           'yearComplete',
@@ -94,49 +71,29 @@ const FinalDelivery = () => {
           const currentYear = new Date().getFullYear()
           return year >= currentYear && year <= currentYear + 20
         })
-        .required('preenchimento obrigatório')
+        .required('Preenchimento obrigatório')
     }),
-    onSubmit: async (values) => {
-      try {
-        // Obtém os valores do pagamento
-        const payment = {
+    onSubmit: (values) => {
+      // Salva os dados do pagamento no Redux
+      dispatch(
+        setPaymentData({
           card: {
             name: values.cardFullName,
-            number: values.cardNumber.replace(/\s/g, ''), // Remove espaços
+            number: values.cardNumber.replace(/\s/g, ''),
             code: Number(values.segNumber),
             expires: {
               month: Number(values.vectoMonth),
               year: Number(values.vectoYear)
             }
           }
-        }
+        })
+      )
 
-        // Obtém os valores de entrega
-        const delivery = {
-          receiver: '', // Exemplo, você precisa pegar os valores do formulário anterior
-          address: {
-            description: '',
-            city: '',
-            zipCode: '',
-            number: 0,
-            complement: ''
-          }
-        }
-
-        // Chama a API para realizar a compra
-        const response = await purchase({
-          products: items.map((item) => ({
-            id: item.id,
-            price: item.preco
-          })),
-          delivery,
-          payment
-        }).unwrap()
-
-        console.log('Resposta da API:', response) // Verifique a resposta da API
-      } catch (error) {
-        console.error('Erro na API:', error) // Verifique o erro
-      }
+      // Fecha as etapas anteriores e abre a final
+      dispatch(openFinalProject())
+      dispatch(closeDeliveryEnd())
+      dispatch(closeDelivery())
+      dispatch(close())
     }
   })
 
@@ -146,82 +103,20 @@ const FinalDelivery = () => {
     const hasError =
       (isTouched && isInvalid) || (form.submitCount > 0 && isInvalid)
 
-    // Verifica se o campo foi submetido e está incompleto
-    if (form.submitCount > 0) {
-      if (
-        fieldName === 'cardNumber' &&
-        form.values.cardNumber.replace(/[^0-9]/g, '').length < 16
-      ) {
-        return true
-      }
-      if (
-        fieldName === 'segNumber' &&
-        form.values.segNumber.replace(/[^0-9]/g, '').length < 3
-      ) {
-        return true
-      }
-      if (
-        fieldName === 'vectoMonth' &&
-        form.values.vectoMonth.replace(/[^0-9]/g, '').length < 2
-      ) {
-        return true
-      }
-      if (
-        fieldName === 'vectoYear' &&
-        form.values.vectoYear.replace(/[^0-9]/g, '').length < 4
-      ) {
-        return true
-      }
-    }
-
     return hasError
   }
 
-  // Função para abrir a página final do projeto
-  const openFinalProjectPage = () => {
-    // Marca todos os campos como tocados para exibir os erros
-    const touchedFields = Object.keys(form.values).reduce<
-      Record<string, boolean>
-    >((acc, field) => {
-      acc[field] = true
-      return acc
-    }, {})
+  const handleFinishPayment = () => {
+    form.setTouched(
+      Object.keys(form.values).reduce((acc, field) => {
+        acc[field] = true
+        return acc
+      }, {} as Record<string, boolean>)
+    )
 
-    form.setTouched(touchedFields)
-
-    // Verifica se os campos com máscara estão preenchidos completamente
-    const cardNumberComplete =
-      form.values.cardNumber.replace(/[^0-9]/g, '').length === 16
-    const cvvComplete =
-      form.values.segNumber.replace(/[^0-9]/g, '').length === 3
-    const monthComplete =
-      form.values.vectoMonth.replace(/[^0-9]/g, '').length === 2
-    const yearComplete =
-      form.values.vectoYear.replace(/[^0-9]/g, '').length === 4
-
-    // Valida o formulário manualmente
-    form.validateForm().then((validationErrors) => {
-      // Cria uma cópia dos erros de validação
-      const allErrors = { ...validationErrors }
-
-      // Adiciona erros para campos incompletos
-      if (!cardNumberComplete)
-        allErrors.cardNumber = 'Número de cartão incompleto'
-      if (!cvvComplete) allErrors.segNumber = 'CVV incompleto'
-      if (!monthComplete) allErrors.vectoMonth = 'Mês incompleto'
-      if (!yearComplete) allErrors.vectoYear = 'Ano incompleto'
-
-      // Define todos os erros de uma vez
-      form.setErrors(allErrors)
-
-      // Se não houver erros, submete o formulário e abre o ProjectFinal
-      if (Object.keys(allErrors).length === 0) {
+    form.validateForm().then((errors) => {
+      if (Object.keys(errors).length === 0) {
         form.handleSubmit()
-
-        dispatch(openFinalProject())
-        dispatch(closeDeliveryEnd())
-        dispatch(closeDelivery())
-        dispatch(close())
       }
     })
   }
@@ -233,7 +128,7 @@ const FinalDelivery = () => {
         <PricesT>
           Pagamento - Valor a pagar R${' '}
           {items
-            .reduce((total, item) => total + item.preco, 0)
+            .reduce((total: any, item: { preco: any }) => total + item.preco, 0)
             .toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
         </PricesT>
         <form onSubmit={form.handleSubmit}>
@@ -323,7 +218,7 @@ const FinalDelivery = () => {
           <S.ButtonContainer>
             <div>
               <S.ButtonCart
-                onClick={openFinalProjectPage} // Chama a função de envio
+                onClick={handleFinishPayment}
                 title="Clique aqui para finalizar o pagamento"
                 type="button"
               >

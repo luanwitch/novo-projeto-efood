@@ -1,4 +1,5 @@
-declare type Produto = {
+// Produto do cardápio
+export type Produto = {
   id: number
   titulo: string
   destacado: boolean
@@ -7,35 +8,31 @@ declare type Produto = {
   descricao: string
   capa: string
   cardapio: {
-    foto: string
-    preco: number
     id: number
     nome: string
     descricao: string
+    foto: string
+    preco: number
     porcao: string
   }[]
 }
 
-// Tipo para os produtos enviados à API
-declare type ProductAPI = {
+// Tipo usado para enviar produtos à API
+export type ProductAPI = {
   id: number
   price: number
 }
-// Tipo para os dados de pagamento
-declare type PaymentData = {
-  card: {
-    name: string
-    number: string
-    code: number
-    expires: {
-      month: number
-      year: number
-    }
-  }
+
+// Dados de pagamento
+export type PaymentData = {
+  cardNumber: string
+  expiryDate: string // MM/YY
+  cvv: string
+  nameOnCard: string
 }
 
-// Tipo para os dados de entrega
-declare type DeliveryData = {
+// Dados de entrega
+export type DeliveryData = {
   fullName: string
   end: string
   city: string
@@ -45,7 +42,7 @@ declare type DeliveryData = {
 } | null
 
 // Estado do carrinho
-declare type CartState = {
+export type CartState = {
   items: Produto['cardapio'][0][] // Itens do carrinho (pratos)
   isOpen: boolean
   isOpenDelivery: boolean
@@ -56,12 +53,14 @@ declare type CartState = {
   paymentData: PaymentData
 }
 
-declare type Product = {
+// Tipo genérico de produto para API
+export type Product = {
   id: number
   price: number
 }
 
-declare type PurchasePayload = {
+// Payload da requisição de compra
+export type PurchasePayload = {
   orderId?: string
   products: Product[]
   delivery: {
@@ -87,16 +86,19 @@ declare type PurchasePayload = {
   }
 }
 
-declare type Purchaseresponse = {
+// Resposta da API
+export type PurchaseResponse = {
   delivery: null
   orderId: string
 }
 
-declare type InputGroupProps = {
+// Props para InputGroup
+export type InputGroupProps = {
   maxWidth?: string
 }
 
-declare type Props = {
+// Props de botão ou link
+export type Props = {
   type: 'button' | 'link'
   title: string
   to?: string
@@ -104,19 +106,20 @@ declare type Props = {
   children: React.ReactNode
 }
 
-// Definindo tipos para o formulário
-declare interface FormValues {
+// Formulário de pagamento
+export interface FormValues {
   cardFullName: string
   cardNumber: string
   segNumber: string
   vectoMonth: string
   vectoYear: string
-  [key: string]: string // Índice de assinatura para permitir acesso dinâmico aos campos
+  [key: string]: string // permite acesso dinâmico
 }
 
-declare type PerfilProps = {
+// Props de perfil/restaurante
+export type PerfilProps = {
   perfils: Produto[]
   restauranteId?: number
   onProductClick: (restaurante: Produto, item: Produto['cardapio'][0]) => void
-  botaoLabel?: string // 🔹 Adicionamos a propriedade opcional
+  botaoLabel?: string // opcional
 }

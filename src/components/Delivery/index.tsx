@@ -16,7 +16,6 @@ import {
   setDeliveryData,
   close
 } from '../../store/reducers/cart'
-import { usePurchaseMutation } from '../../services/api'
 
 const Delivery = () => {
   const { isOpenDelivery, items } = useSelector(
@@ -34,8 +33,6 @@ const Delivery = () => {
     dispatch(openDeliveryEnd())
   }
 
-  const [purchase] = usePurchaseMutation()
-
   const form = useFormik({
     initialValues: {
       fullName: '',
@@ -46,64 +43,29 @@ const Delivery = () => {
       complement: ''
     },
     validationSchema: Yup.object({
-      fullName: Yup.string().required('preenchimento obrigatório'),
-      end: Yup.string().required('preenchimento obrigatório'),
-      city: Yup.string().required('preenchimento obrigatório'),
+      fullName: Yup.string().required('Preenchimento obrigatório'),
+      end: Yup.string().required('Preenchimento obrigatório'),
+      city: Yup.string().required('Preenchimento obrigatório'),
       cep: Yup.string()
-        .min(9, 'minimo 9 caracteres')
-        .max(9, 'máximo 9 caracteres')
-        .required('preenchimento obrigatório'),
-      numero: Yup.string().required('preenchimento obrigatório')
+        .min(9, 'Mínimo 9 caracteres')
+        .max(9, 'Máximo 9 caracteres')
+        .required('Preenchimento obrigatório'),
+      numero: Yup.string().required('Preenchimento obrigatório')
     }),
 
-    onSubmit: async (values) => {
+    onSubmit: (values) => {
       setIsLoading(true)
+      // Apenas salva no Redux
       dispatch(setDeliveryData(values))
 
-      try {
-        const response = await purchase({
-          delivery: {
-            receiver: values.fullName,
-            address: {
-              description: values.end,
-              city: values.city,
-              zipCode: values.cep.replace('-', ''),
-              number: Number(values.numero),
-              complement: values.complement || 'N/A'
-            }
-          },
-          products: items.map((item) => ({
-            id: item.id,
-            price: item.preco
-          })),
-          payment: {
-            card: {
-              name: '',
-              number: '',
-              code: 0,
-              expires: {
-                month: 0,
-                year: 0
-              }
-            }
-          }
-        }).unwrap()
-
-        console.log('Resposta da API:', response)
-
-        // Timer de 1 segundo antes de prosseguir
-        setTimeout(() => {
-          setIsLoading(false)
-          openCartDeliveryEnd()
-        }, 1000)
-      } catch (error) {
-        console.error('Erro na API:', error)
+      // Timer de 1 segundo antes de prosseguir
+      setTimeout(() => {
         setIsLoading(false)
-      }
+        openCartDeliveryEnd()
+      }, 1000)
     }
   })
 
-  // Função que verifica se um campo tem erro, considerando também a tentativa de submissão
   const checkInputHasError = (fieldName: string) => {
     const isTouched = fieldName in form.touched
     const isInvalid = fieldName in form.errors
@@ -113,9 +75,7 @@ const Delivery = () => {
     return hasError
   }
 
-  // Função para lidar com o clique no botão de continuar
   const handleContinueClick = () => {
-    // Marca todos os campos como tocados para exibir os erros
     const touchedFields = Object.keys(form.values).reduce((acc, field) => {
       acc[field] = true
       return acc
@@ -123,16 +83,13 @@ const Delivery = () => {
 
     form.setTouched(touchedFields)
 
-    // Valida o formulário manualmente
     form.validateForm().then((errors) => {
-      // Se não houver erros, submete o formulário
       if (Object.keys(errors).length === 0) {
         form.handleSubmit()
       }
     })
   }
 
-  // Efeito para mostrar o loader quando o delivery é aberto
   useEffect(() => {
     if (isOpenDelivery) {
       setIsLoading(true)

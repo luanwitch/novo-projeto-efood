@@ -21,10 +21,10 @@ const ProjectFinal = () => {
   const [orderId, setOrderId] = useState<string | null>(null)
 
   useEffect(() => {
-    if (data && data.orderId) {
+    if (data?.orderId) {
       setOrderId(data.orderId)
       setOrderPlaced(true)
-      dispatch(clearItems())
+      dispatch(clearItems()) // ✅ só limpa após sucesso
     }
   }, [data, dispatch])
 
@@ -34,35 +34,47 @@ const ProjectFinal = () => {
       return
     }
 
-    if (!deliveryData) {
-      console.error('Dados de entrega ausentes')
+    if (!deliveryData || !paymentData) {
+      console.error('Dados de entrega ou pagamento ausentes')
       return
     }
 
+    // Formatação segura dos dados
     const formData = {
       delivery: {
         receiver: deliveryData.fullName,
         address: {
           description: deliveryData.end,
           city: deliveryData.city,
-          zipCode: deliveryData.cep,
+          zipCode: String(deliveryData.cep).replace(/\D/g, ''), // só números
           number: Number(deliveryData.numero),
           complement: deliveryData.complement || 'N/A'
         }
       },
       products:
         products.length > 0
-          ? products
-          : items.map((item) => ({
+          ? products.map((p: { id: any; price: any }) => ({
+              id: p.id,
+              price: Number(p.price)
+            }))
+          : items.map((item: { id: any; preco: any }) => ({
               id: item.id,
-              price: item.preco
+              price: Number(item.preco)
             })),
-      payment: paymentData
+      payment: {
+        ...paymentData,
+        cardNumber: paymentData.cardNumber.replace(/\s/g, ''), // remove espaços
+        expiryDate: (() => {
+          // transforma MM/YY em YYYY-MM
+          const [month, year] = paymentData.expiryDate.split('/')
+          return `20${year}-${month.padStart(2, '0')}`
+        })()
+      }
     }
 
     try {
       const result = await purchase(formData).unwrap()
-      if (result && result.orderId) {
+      if (result?.orderId) {
         setOrderId(result.orderId)
         setOrderPlaced(true)
       }
@@ -71,13 +83,8 @@ const ProjectFinal = () => {
     }
   }
 
-  if (isLoading) {
-    return <div>Carregando...</div>
-  }
-
-  if (isError) {
-    return <div>Erro ao processar o pedido</div>
-  }
+  if (isLoading) return <div>Carregando...</div>
+  if (isError) return <div>Erro ao processar o pedido</div>
 
   return (
     <S.FaseEnd className={isFinalProjectOpen ? 'is-open' : ''}>
